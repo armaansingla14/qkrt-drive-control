@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>qkrt_core</name>
+  <version>0.3.0</version>
+  <description>ROS-independent drive control, localization, planning and collision core for the QKRT rover.</description>
+  <maintainer email="armaan.singla@outlook.com">Armaan Singla</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>cmake</buildtool_depend>
+  <depend>eigen</depend>
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>

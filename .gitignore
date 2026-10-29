@@ -1,0 +1,14 @@
+build/
+build-*/
+install/
+log/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+*.o
+*.a
+*.so
+.vscode/
+.idea/
