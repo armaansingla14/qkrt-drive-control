@@ -1,0 +1,58 @@
+VERSION "0.3"
+
+NS_ :
+
+BS_:
+
+BU_: HOST MC0 MC1 MC2 MC3
+
+BO_ 0 Estop: 2 HOST
+ SG_ EstopMagic : 0|8@1+ (1,0) [0|255] "" MC0,MC1,MC2,MC3
+ SG_ EstopMagicInv : 8|8@1+ (1,0) [0|255] "" MC0,MC1,MC2,MC3
+
+BO_ 256 DriveCommand_MC0: 8 HOST
+ SG_ Mode : 0|8@1+ (1,0) [0|3] "" MC0
+ SG_ VelocitySetpoint : 8|32@1- (0.001,0) [-2147483.648|2147483.647] "rad/s" MC0
+ SG_ TorqueFF : 40|16@1- (0.001,0) [-32.768|32.767] "N.m" MC0
+ SG_ AliveCounter : 56|8@1+ (1,0) [0|255] "" MC0
+
+BO_ 257 DriveCommand_MC1: 8 HOST
+ SG_ Mode : 0|8@1+ (1,0) [0|3] "" MC1
+ SG_ VelocitySetpoint : 8|32@1- (0.001,0) [-2147483.648|2147483.647] "rad/s" MC1
+ SG_ TorqueFF : 40|16@1- (0.001,0) [-32.768|32.767] "N.m" MC1
+ SG_ AliveCounter : 56|8@1+ (1,0) [0|255] "" MC1
+
+BO_ 384 MotorStatus_MC0: 8 MC0
+ SG_ Velocity : 0|32@1- (0.001,0) [-2147483.648|2147483.647] "rad/s" HOST
+ SG_ Current : 32|16@1- (0.01,0) [-327.68|327.67] "A" HOST
+ SG_ Faults : 48|8@1+ (1,0) [0|255] "" HOST
+ SG_ AliveCounter : 56|8@1+ (1,0) [0|255] "" HOST
+
+BO_ 385 MotorStatus_MC1: 8 MC1
+ SG_ Velocity : 0|32@1- (0.001,0) [-2147483.648|2147483.647] "rad/s" HOST
+ SG_ Current : 32|16@1- (0.01,0) [-327.68|327.67] "A" HOST
+ SG_ Faults : 48|8@1+ (1,0) [0|255] "" HOST
+ SG_ AliveCounter : 56|8@1+ (1,0) [0|255] "" HOST
+
+BO_ 768 TelemetryFD_MC0: 32 MC0
+ SG_ TimestampUs : 0|32@1+ (1,0) [0|4294967295] "us" HOST
+ SG_ PositionCounts : 32|32@1- (1,0) [-2147483648|2147483647] "" HOST
+ SG_ Velocity : 64|32@1- (0.001,0) [-2147483.648|2147483.647] "rad/s" HOST
+ SG_ Iq : 96|16@1- (0.01,0) [-327.68|327.67] "A" HOST
+ SG_ Id : 112|16@1- (0.01,0) [-327.68|327.67] "A" HOST
+ SG_ BusVoltage : 128|16@1+ (0.01,0) [0|655.35] "V" HOST
+ SG_ MotorTemp : 144|16@1- (0.1,0) [-3276.8|3276.7] "degC" HOST
+ SG_ FetTemp : 160|16@1- (0.1,0) [-3276.8|3276.7] "degC" HOST
+ SG_ Faults : 176|16@1+ (1,0) [0|65535] "" HOST
+ SG_ AliveCounter : 192|8@1+ (1,0) [0|255] "" HOST
+ SG_ Crc16 : 240|16@1+ (1,0) [0|65535] "" HOST
+
+BO_ 1792 Heartbeat_MC0: 1 MC0
+ SG_ State : 0|8@1+ (1,0) [0|255] "" HOST
+
+CM_ BO_ 768 "CAN FD frame with bit-rate switch; CRC-16/CCITT-FALSE over bytes 0..29.";
+CM_ SG_ 256 VelocitySetpoint "Scale is 1e-6 (duty) when Mode == 1.";
+BA_DEF_ BO_ "VFrameFormat" ENUM "StandardCAN","ExtendedCAN","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","reserved","StandardCAN_FD","ExtendedCAN_FD";
+BA_DEF_DEF_ "VFrameFormat" "StandardCAN";
+BA_ "VFrameFormat" BO_ 768 14;
+VAL_ 256 Mode 0 "Disabled" 1 "Duty" 2 "Velocity" 3 "Torque" ;
