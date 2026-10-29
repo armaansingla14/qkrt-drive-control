@@ -1,0 +1,4 @@
+strategy,obstacles,movers_per_frame,queries_per_frame,frames,ms_per_frame,total_hits
+brute_force,10000,1000,1000,100,45.548,16788
+bvh_rebuild_each_frame,10000,1000,1000,100,6.346,16788
+aabb_tree_incremental,10000,1000,1000,100,1.358,16788
