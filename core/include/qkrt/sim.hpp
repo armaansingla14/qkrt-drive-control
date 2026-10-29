@@ -21,6 +21,7 @@ struct SimConfig {
   double wheel_radius = 0.1;
   double track_width = 0.5;
   double icr_factor = 1.0;
+  double wheel_radius_error_std = 0.005;  ///< per-wheel true-radius error (fraction), drawn per run
   double motor_tau = 0.05;          ///< motor/wheel first-order time constant [s]
   double max_wheel_speed = 20.0;    ///< no-load wheel speed at full duty [rad/s]
   int encoder_cpr = 4096;           ///< encoder counts per wheel revolution
@@ -58,6 +59,8 @@ struct GroundTruth {
   bool slipping = false;
   double gyro_bias = 0.0;
   double accel_bias = 0.0;
+  double radius_scale_left = 1.0;   ///< true radius / nominal radius
+  double radius_scale_right = 1.0;
 };
 
 /// 2D differential-drive / skid-steer simulator with motor lag, wheel slip and noisy sensors.

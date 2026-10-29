@@ -17,7 +17,12 @@ struct EkfConfig {
   double q_bias = 1e-7;   ///< gyro bias random walk
   // Measurement noise standard deviations.
   double odom_v_std = 0.03;   ///< [m/s]
-  double odom_w_std = 0.06;   ///< [rad/s]
+  double odom_w_std = 0.06;   ///< [rad/s] base yaw-rate noise
+  /// Additional yaw-rate std per m/s of speed: wheel-odometry yaw rate degrades with speed
+  /// (radius/track errors, skid). Keeps the gyro-bias state from absorbing odometry errors.
+  double odom_w_std_per_mps = 0.25;
+  double stationary_speed = 0.02;    ///< [m/s] encoders below this => zero-rate update
+  double stationary_w_std = 0.002;   ///< [rad/s] yaw-rate std when stationary
   double gyro_std = 0.006;    ///< [rad/s]
   double gps_std = 0.5;       ///< [m]
   // Slip handling.
@@ -54,6 +59,7 @@ class LocalizationEkf {
   const EkfConfig& config() const { return cfg_; }
 
  private:
+  Eigen::Matrix2d odomR(double v_enc, double w_enc, bool slip) const;
   template <int M>
   double update(const Eigen::Matrix<double, M, 1>& z, const Eigen::Matrix<double, M, 6>& H,
                 const Eigen::Matrix<double, M, M>& R, int angle_row = -1);

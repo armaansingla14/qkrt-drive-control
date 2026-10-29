@@ -1,0 +1,41 @@
+# Parameters for the QKRT rover stack (simulated base by default).
+sim_node:
+  ros__parameters:
+    rate_hz: 100.0
+    slip_event_rate: 0.1
+    gps_rate_hz: 1.0
+    gps_noise_std: 1.0
+
+drive_controller_node:
+  ros__parameters:
+    rate_hz: 100.0
+    wheel_radius: 0.1
+    track_width: 0.5
+    icr_factor: 1.0          # > 1.0 for the skid-steer chassis
+    max_wheel_speed: 20.0
+    kp: 0.15
+    ki: 2.0
+    cmd_timeout: 0.25
+
+localization_node:
+  ros__parameters:
+    wheel_radius: 0.1
+    track_width: 0.5
+    icr_factor: 1.0
+    slip_aware: true
+    gps_std: 1.0
+
+planner_node:
+  ros__parameters:
+    planner: astar           # astar | rrt | rrt_star
+    robot_radius: 0.35
+    lookahead: 0.8
+    cruise_speed: 0.8
+    goal_tolerance: 0.3
+
+teleop_bridge_node:
+  ros__parameters:
+    port: 47800
+    timeout: 0.25
+    v_max: 2.0
+    w_max: 2.5

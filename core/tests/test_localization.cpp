@@ -49,7 +49,9 @@ double runRmse(LocalizerMode mode, SimConfig cfg, double duration, int* slip_ste
 }  // namespace
 
 TEST_CASE("sim reaches commanded speed without slip") {
-  DiffDriveSim sim(baseConfig(3));
+  SimConfig c = baseConfig(3);
+  c.wheel_radius_error_std = 0.0;
+  DiffDriveSim sim(c);
   SensorFrame s;
   for (int i = 0; i < 200; ++i) s = sim.step(0.5, 0.5, 0.01);
   CHECK_NEAR(sim.truth().v, 1.0, 0.01);
@@ -59,6 +61,7 @@ TEST_CASE("sim reaches commanded speed without slip") {
 
 TEST_CASE("slip zone: encoders over-report ground speed") {
   SimConfig c = baseConfig(4);
+  c.wheel_radius_error_std = 0.0;
   c.slip_zones.push_back({{0.0, 0.0}, 100.0, 0.5, 0.5});
   DiffDriveSim sim(c);
   SensorFrame s;

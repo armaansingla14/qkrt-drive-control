@@ -15,6 +15,8 @@ void DiffDriveSim::reset(const Pose2& pose) {
   truth_.pose = pose;
   truth_.gyro_bias = cfg_.gyro_bias_init_std * n01_(rng_);
   truth_.accel_bias = cfg_.accel_bias_std * n01_(rng_);
+  truth_.radius_scale_left = 1.0 + cfg_.wheel_radius_error_std * n01_(rng_);
+  truth_.radius_scale_right = 1.0 + cfg_.wheel_radius_error_std * n01_(rng_);
   t_ = 0.0;
   angle_left_ = angle_right_ = 0.0;
   ticks_left_ = ticks_right_ = 0;
@@ -63,8 +65,10 @@ SensorFrame DiffDriveSim::step(double duty_left, double duty_right, double dt) {
   truth_.wheel_right += dt * (cfg_.max_wheel_speed * duty_right - truth_.wheel_right) / tau_r;
 
   // Ground contact speeds reduced by slip.
-  const WheelSpeeds ground{(1.0 - truth_.slip_left) * truth_.wheel_left,
-                           (1.0 - truth_.slip_right) * truth_.wheel_right};
+  // Ground contact speeds (in nominal-radius wheel units) reduced by slip and scaled by the
+  // true wheel radius, which differs slightly from the nominal value the estimators assume.
+  const WheelSpeeds ground{(1.0 - truth_.slip_left) * truth_.radius_scale_left * truth_.wheel_left,
+                           (1.0 - truth_.slip_right) * truth_.radius_scale_right * truth_.wheel_right};
   const Twist2 tw = kin_.forward(ground);
   const double v_prev = truth_.v;
   truth_.pose = integrateArc(truth_.pose, tw.v, tw.w, dt);

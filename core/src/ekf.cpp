@@ -82,20 +82,27 @@ Eigen::Matrix<double, 2, 6> odomH() {
 }
 }  // namespace
 
+Eigen::Matrix2d LocalizationEkf::odomR(double v_enc, double w_enc, bool slip) const {
+  const bool stationary = std::abs(v_enc) < cfg_.stationary_speed &&
+                          std::abs(w_enc) < cfg_.stationary_speed / 0.25;
+  double w_std = cfg_.odom_w_std + cfg_.odom_w_std_per_mps * std::abs(v_enc);
+  if (stationary && !slip) w_std = cfg_.stationary_w_std;  // zero angular-rate update
+  const double k = slip ? cfg_.slip_inflation : 1.0;
+  Eigen::Matrix2d R = Eigen::Matrix2d::Zero();
+  R(0, 0) = k * cfg_.odom_v_std * cfg_.odom_v_std;
+  R(1, 1) = k * w_std * w_std;
+  return R;
+}
+
 double LocalizationEkf::odometryNis(double v_enc, double w_enc) const {
   const Eigen::Matrix<double, 2, 6> H = odomH();
-  Eigen::Vector2d R(cfg_.odom_v_std * cfg_.odom_v_std, cfg_.odom_w_std * cfg_.odom_w_std);
   const Eigen::Vector2d y = Eigen::Vector2d(v_enc, w_enc) - H * x_;
-  const Eigen::Matrix2d S = H * P_ * H.transpose() + Eigen::Matrix2d(R.asDiagonal());
+  const Eigen::Matrix2d S = H * P_ * H.transpose() + odomR(v_enc, w_enc, false);
   return y.dot(S.ldlt().solve(y));
 }
 
 double LocalizationEkf::updateWheelOdometry(double v_enc, double w_enc, bool slip) {
-  const double k = slip ? cfg_.slip_inflation : 1.0;
-  Eigen::Matrix2d R = Eigen::Matrix2d::Zero();
-  R(0, 0) = k * cfg_.odom_v_std * cfg_.odom_v_std;
-  R(1, 1) = k * cfg_.odom_w_std * cfg_.odom_w_std;
-  return update<2>(Eigen::Vector2d(v_enc, w_enc), odomH(), R);
+  return update<2>(Eigen::Vector2d(v_enc, w_enc), odomH(), odomR(v_enc, w_enc, slip));
 }
 
 // ---------------------------------------------------------------------------
